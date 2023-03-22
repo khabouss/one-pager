@@ -1,10 +1,11 @@
 import store from '../store/store.js';
 import jsPDF from 'jspdf'
 
-let api_key = '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';
+let api_key = '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';
 
 export default function genrate_description(list) {
     function renderPDF(data) {
+        console.log(store.state.companyName, "\n", list)
         let result = data.choices[0].text
         store.commit('changePopup', false)
         const doc = new jsPDF()
@@ -26,14 +27,14 @@ export default function genrate_description(list) {
         doc.save('my_data.pdf')
     }
 
-    fetch('https://api.openai.com/v1/engines/curie/completions', {
+    fetch('https://api.openai.com/v1/engines/davinci/completions', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${api_key}`
         },
         body: JSON.stringify({
-            prompt: `Compose a very short, meaningful description of a company called "${store.state.companyName}" based on the following descriptions:\n\n${list}`,
+            prompt: `Compose a very short, meaningful description of a company called "${store.state.companyName}" based on the following descriptions:\n${list}`,
             max_tokens: 100,
         })
     })

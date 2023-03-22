@@ -78,7 +78,7 @@ export default {
     methods: {
         generatePDF() {
             this.$store.commit('changePopup', true)
-            generate_description(this.companyDescription)
+            generate_description(this.$store.state.companyDescription)
         }
 
     }
