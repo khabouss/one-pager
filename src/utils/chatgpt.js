@@ -1,9 +1,30 @@
 import store from '../store/store.js';
 import jsPDF from 'jspdf'
 
-let api_key = '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';
+let api_key = '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';
 
 export default function genrate_description(list) {
+    function renderPDF(data) {
+        let result = data.choices[0].text
+        store.commit('changePopup', false)
+        const doc = new jsPDF()
+
+        let distance = 10
+        let maxWidth = "150";
+
+        doc.setFillColor("#088F8F")
+        doc.rect(5, 5, 200, 20, "F")
+
+        doc.setTextColor("#fff")
+        doc.text(store.state.companyName, 10, 10 + distance * 1, {renderingMode: "fill"})
+
+        let digest = [result, "\n\n", store.state.companySocialMedia, store.state.companyPhone, store.state.companyWebsite, store.state.companyAddress, store.state.companyRAndD]
+
+        doc.setTextColor("#000")
+        doc.setFontSize(10)
+        doc.text(digest, 20, 10 + distance * 2.5, { maxWidth: maxWidth })
+        doc.save('my_data.pdf')
+    }
 
     fetch('https://api.openai.com/v1/engines/curie/completions', {
         method: 'POST',
@@ -12,27 +33,11 @@ export default function genrate_description(list) {
             'Authorization': `Bearer ${api_key}`
         },
         body: JSON.stringify({
-            prompt: `Compose a very short, meaningful description of ${"INVESTORS IN SCHOOLS LIMITED"} based on the following descriptions:\n\n${list}`,
+            prompt: `Compose a very short, meaningful description of a company called "${store.state.companyName}" based on the following descriptions:\n\n${list}`,
             max_tokens: 100,
         })
     })
         .then(response => response.json())
-        .then(data => {
-            let result = data.choices[0].text
-            store.commit('changePopup', false)
-            const doc = new jsPDF()
-
-            let distance = 10
-            let maxWidth = "150";
-            doc.setTextColor("#f00")
-            doc.text(store.state.companyName, 10, 10 + distance * 1, {})
-
-            let digest = [store.state.companyDescription, store.state.companySocialMedia, store.state.companyPhone, store.state.companyWebsite, store.state.companyAddress, store.state.companyRAndD]
-            
-            doc.setTextColor("#000")
-            doc.text(digest, 10, 10 + distance * 2, {maxWidth:maxWidth})
-            doc.save('my_data.pdf')
-        }
-        );
+        .then(data => renderPDF(data));
 
 }
