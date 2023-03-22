@@ -1,53 +1,59 @@
 <template>
+    <div v-if="$store.state.showPopup" class="popup">
+        <div class="popup-content">
+            <div class="popup-text">Thinking...</div>
+            <div class="popup-icon">[Waiting for ChatGPT to give us a good idea]</div>
+        </div>
+    </div>
     <div class="container">
         <h1 class="title">Company Information</h1>
         <div class="form">
             <div class="field">
                 <label class="label">Company Name</label>
                 <div class="control">
-                    <input class="input" type="text" v-model="companyName">
+                    <input class="input" type="text" v-model="$store.state.companyName">
                 </div>
             </div>
 
             <div class="field">
-                <label class="label">Company Description</label>
+                <label class="label">Company list of descriptions (seprate by new line)</label>
                 <div class="control">
-                    <textarea class="textarea" v-model="companyDescription"></textarea>
+                    <textarea class="textarea" v-model="$store.state.companyDescription"></textarea>
                 </div>
             </div>
 
             <div class="field">
                 <label class="label">Company Social Media</label>
                 <div class="control">
-                    <input class="input" type="text" v-model="companySocialMedia">
+                    <input class="input" type="text" v-model="$store.state.companySocialMedia">
                 </div>
             </div>
 
             <div class="field">
                 <label class="label">Company Phone</label>
                 <div class="control">
-                    <input class="input" type="tel" v-model="companyPhone">
+                    <input class="input" type="tel" v-model="$store.state.companyPhone">
                 </div>
             </div>
 
             <div class="field">
                 <label class="label">Company Website</label>
                 <div class="control">
-                    <input class="input" type="url" v-model="companyWebsite">
+                    <input class="input" type="url" v-model="$store.state.companyWebsite">
                 </div>
             </div>
 
             <div class="field">
                 <label class="label">Company Address</label>
                 <div class="control">
-                    <textarea class="textarea" v-model="companyAddress"></textarea>
+                    <textarea class="textarea" v-model="$store.state.companyAddress"></textarea>
                 </div>
             </div>
 
             <div class="field">
                 <label class="label">Company R&amp;D</label>
                 <div class="control">
-                    <input class="input" type="text" v-model="companyRAndD">
+                    <input class="input" type="text" v-model="$store.state.companyRAndD">
                 </div>
             </div>
 
@@ -61,34 +67,18 @@
 </template>
   
 <script>
-import jsPDF from 'jspdf'
-import autoTable from 'jspdf-autotable'
+import generate_description from '../utils/chatgpt'
 
 
 export default {
     data() {
         return {
-            companyName: 'PHARMACIE DES TROIS COMMUNES',
-            companyDescription: `Places des Causses, 78180 Montigny-le-Bretonneux, France. Toutes les informations pratiques : adresse, tÃ©lÃ©phone, horaires d'ouverture de Pharmacie des 3 Communes Ã MONTIGNY LE BRETONNEUX sont sur le 118000.`,
-            companySocialMedia: 'facebook',
-            companyPhone: '+2126012345678',
-            companyWebsite: 'https://appeler-tenemos.com/',
-            companyAddress: 'MONTIGNY-LE-BRETONNEUX',
-            companyRAndD: '0.33'
         }
     },
     methods: {
         generatePDF() {
-            const doc = new jsPDF()
-
-            let distance = 10
-            let maxWidth = "150";
-            doc.text('One-Pager', 10, 10 + distance * 1)
-
-            let data = [this.companyName, this.companyDescription, this.companySocialMedia, this.companyPhone, this.companyWebsite, this.companyAddress, this.companyRAndD]
-
-            doc.text(data, 10, 10 + distance * 2, {maxWidth:maxWidth})
-            doc.save('my_data.pdf')
+            this.$store.commit('changePopup', true)
+            generate_description(this.companyDescription)
         }
 
     }
@@ -107,6 +97,32 @@ export default {
 .title {
     margin-top: 50px;
     margin-bottom: 30px;
+}
+.popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.popup-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.popup-text {
+  font-size: 20px;
+  margin-bottom: 10px;
 }
 </style>
   
