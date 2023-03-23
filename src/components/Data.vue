@@ -11,49 +11,49 @@
             <div class="field">
                 <label class="label">Company Name</label>
                 <div class="control">
-                    <input class="input" type="text" v-model="$store.state.companyName">
+                    <input class="input" type="text" v-model="$store.state.entries[$store.state.ENTRIE].companyName">
                 </div>
             </div>
 
             <div class="field">
                 <label class="label">Company list of descriptions (seprate by new line)</label>
                 <div class="control">
-                    <textarea class="textarea" v-model="$store.state.companyDescription"></textarea>
+                    <textarea class="textarea" v-model="$store.state.entries[$store.state.ENTRIE].companyDescription"></textarea>
                 </div>
             </div>
 
             <div class="field">
                 <label class="label">Company Social Media</label>
                 <div class="control">
-                    <input class="input" type="text" v-model="$store.state.companySocialMedia">
+                    <input class="input" type="text" v-model="$store.state.entries[$store.state.ENTRIE].companySocialMedia">
                 </div>
             </div>
 
             <div class="field">
                 <label class="label">Company Phone</label>
                 <div class="control">
-                    <input class="input" type="tel" v-model="$store.state.companyPhone">
+                    <input class="input" type="tel" v-model="$store.state.entries[$store.state.ENTRIE].companyPhone">
                 </div>
             </div>
 
             <div class="field">
                 <label class="label">Company Website</label>
                 <div class="control">
-                    <input class="input" type="url" v-model="$store.state.companyWebsite">
+                    <input class="input" type="url" v-model="$store.state.entries[$store.state.ENTRIE].companyWebsite">
                 </div>
             </div>
 
             <div class="field">
                 <label class="label">Company Address</label>
                 <div class="control">
-                    <textarea class="textarea" v-model="$store.state.companyAddress"></textarea>
+                    <textarea class="textarea" v-model="$store.state.entries[$store.state.ENTRIE].companyAddress"></textarea>
                 </div>
             </div>
 
             <div class="field">
                 <label class="label">Company R&amp;D</label>
                 <div class="control">
-                    <input class="input" type="text" v-model="$store.state.companyRAndD">
+                    <input class="input" type="text" v-model="$store.state.entries[$store.state.ENTRIE].companyRAndD">
                 </div>
             </div>
 
@@ -67,7 +67,7 @@
 </template>
   
 <script>
-import generate_description from '../utils/chatgpt'
+import generate_pdf from '../utils/chatgpt'
 
 
 export default {
@@ -78,7 +78,7 @@ export default {
     methods: {
         generatePDF() {
             this.$store.commit('changePopup', true)
-            generate_description(this.$store.state.companyDescription)
+            generate_pdf(this.$store.state.entries[this.$store.state.ENTRIE].companyDescription)
         }
 
     }

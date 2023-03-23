@@ -9,6 +9,7 @@
   "dependencies": {
     "bulma": "^0.9.4",
     "jspdf": "^2.5.1",
+    "openai": "^3.2.1",
     "vue": "^3.2.13",
     "vuex": "^4.1.0"
   },
