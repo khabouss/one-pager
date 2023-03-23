@@ -66,7 +66,7 @@ export default async function generate() {
     const profile_messages = [{ role: 'user', content: profile_prompt }]
     let profile = await get_gpt_response(profile_messages)
 
-    let activity_prompt = `using the following company description: "${profile.trim()}" and the following company keywors: "${store.state.entries[store.state.ENTRIE].keywords}" and the following company SIC: "${store.state.entries[store.state.ENTRIE].SIC}" give me quickly a short description of the company main activity`
+    let activity_prompt = `using the following company keywors: "${store.state.entries[store.state.ENTRIE].keywords}" and the following company SIC: "${store.state.entries[store.state.ENTRIE].SIC}" give me quickly a short description of the company innovation activity`
     const activity_messages = [{ role: 'user', content: activity_prompt }]
     let activity = await get_gpt_response(activity_messages)
 
