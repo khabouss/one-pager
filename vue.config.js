@@ -1,7 +1,5 @@
 module.exports = {
-    configureWebpack: {
-      experiments: {
-        topLevelAwait: true,
-      },
-    },
-  };
+  devServer: {
+
+  },
+};

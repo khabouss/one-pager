@@ -1,11 +1,12 @@
 import store from '../store/store.js';
 import jsPDF from 'jspdf'
 
-let api_key = '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';
+let api_key = process.env.VUE_APP_API_KEY;
 
 export default function genrate_description(list) {
     function renderPDF(data) {
-        console.log(store.state.companyName, "\n", list)
+        console.log(data);
+        console.log(api_key);
         let result = data.choices[0].text
         store.commit('changePopup', false)
         const doc = new jsPDF()
@@ -17,7 +18,7 @@ export default function genrate_description(list) {
         doc.rect(5, 5, 200, 20, "F")
 
         doc.setTextColor("#fff")
-        doc.text(store.state.companyName, 10, 10 + distance * 1, {renderingMode: "fill"})
+        doc.text(store.state.companyName, 10, 10 + distance * 1, { renderingMode: "fill" })
 
         let digest = [result, "\n\n", store.state.companySocialMedia, store.state.companyPhone, store.state.companyWebsite, store.state.companyAddress, store.state.companyRAndD]
 
