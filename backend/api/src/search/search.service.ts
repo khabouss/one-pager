@@ -13,7 +13,7 @@ export class SearchService {
     private readonly configService: ConfigService,
   ) {
     this.marchEsClient = new Client({
-      node: configService.get('NODE'),
+      node: configService.get('URL'),
       auth: {
         username: configService.get('USERNAME'),
         password: configService.get('PASS')

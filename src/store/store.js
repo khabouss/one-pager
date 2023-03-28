@@ -4,25 +4,41 @@ const store = createStore({
     state() {
         return {
             showPopup: false,
-            companyID: '',
+            companyID: '07976052',
             companyName: '',
-            companyDescription: ``,
+            companyDescription: '',
             companySocialMedia: '',
             companyPhone: '',
             companyWebsite: '',
             companyAddress: '',
             companyRAndD: '',
             innovation_sentances: '',
+            sentences_count: 0,
+            high_scoring_sentences_count: 0,
             innovation_keywords: '',
             industry: '',
             incorporationDate: '',
             SIC: '',
             keywords: '',
+            country: '',
+            ws_sm_status: 0
         };
     },
     mutations: {
         changePopup(state, val) {
             state.showPopup = val;
+        },
+        change_country(state, val) {
+            state.country = val;
+        },
+        change_ws_sm_status(state, val) {
+            state.ws_sm_status = val;
+        },
+        change_sentences_count(state, val) {
+            state.sentences_count = val;
+        },
+        change_high_scoring_sentences_count(state, val) {
+            state.high_scoring_sentences_count = val;
         },
         change_companyName(state, val) {
             state.companyName = val;

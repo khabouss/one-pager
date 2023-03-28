@@ -107,27 +107,31 @@ export default {
         },
         generatePDF() {
             axios
-                // .post("http://localhost:3000/products/getall", { data: this.$store.state.companyID })
-                // .then((response) => {
-                //     let results = response.data.results
+                .post("http://localhost:3000/products/getall", { data: this.$store.state.companyID })
+                .then((response) => {
+                    let results = response.data.results
+                    console.log(results);
+                    this.$store.commit('change_companyName', results.official_name)
+                    this.$store.commit('change_ws_sm_status', results.ws_sm_status)
+                    this.$store.commit('change_companyDescription', results.ws_description)
+                    this.$store.commit('change_companySocialMedia', results.ws_sm)
+                    this.$store.commit('change_companyPhone', results.ws_contact_phone)
+                    this.$store.commit('change_companyWebsite', results.ws_url)
+                    this.$store.commit('change_companyAddress', results.official_country + ", " + results.address_city)
+                    this.$store.commit('change_companyRAndD', results.is_rd_score + "%")
+                    this.$store.commit('change_innovation_sentances', this.format_sentances(results.is_rd_details.sentences))
+                    this.$store.commit('change_sentences_count', results.is_rd_details.sentences_count)
+                    this.$store.commit('change_high_scoring_sentences_count', results.is_rd_details.high_scoring_sentences_count)
+                    this.$store.commit('change_innovation_keywords', this.getRdWords(results.is_rd_details.sentences, results.official_country))
+                    this.$store.commit('change_industry', results.official_section)
+                    this.$store.commit('change_incorporationDate', results.official_incorporation_date)
+                    this.$store.commit('change_SIC', results.official_industry)
+                    this.$store.commit('change_keywords', results.ws_significant_words)
+                    this.$store.commit('change_country', results.official_country)
                     
-                //     this.$store.commit('change_companyName', results.official_name)
-                //     this.$store.commit('change_companyDescription', results.ws_description)
-                //     this.$store.commit('change_companySocialMedia', "twitter")
-                //     this.$store.commit('change_companyPhone', results.ws_contact_phone)
-                //     this.$store.commit('change_companyWebsite', results.ws_url)
-                //     this.$store.commit('change_companyAddress', results.official_country + ", " + results.address_city)
-                //     this.$store.commit('change_companyRAndD', results.is_rd_score + "%")
-                //     this.$store.commit('change_innovation_sentances', this.format_sentances(results.is_rd_details.sentences))
-                //     this.$store.commit('change_innovation_keywords', this.getRdWords(results.is_rd_details.sentences, results.official_country))
-                //     this.$store.commit('change_industry', results.official_section[0])
-                //     this.$store.commit('change_incorporationDate', results.official_incorporation_date)
-                //     this.$store.commit('change_SIC', results.official_industry[0])
-                //     this.$store.commit('change_keywords', results.ws_significant_words)
-                    
-                //     // this.$store.commit('changePopup', true)
-                // });
-                generate_pdf(this.$store.state.companyDescription)
+                    this.$store.commit('changePopup', true)
+                    generate_pdf(this.$store.state.companyDescription)
+                });
         }
     }
 }
