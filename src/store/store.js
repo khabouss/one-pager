@@ -4,54 +4,65 @@ const store = createStore({
     state() {
         return {
             showPopup: false,
-            ENTRIE: 0,
-            entries: [
-                {
-                    companyName: 'IVF LIMITED',
-                    companyDescription: `Manufacturers of high quality, species-specific media for in vitro fertilisation (IVF). All IVF Bioscience products are serum-free and ready to use.`,
-                    companySocialMedia: 'twitter',
-                    companyPhone: '+2126012345678',
-                    companyWebsite: 'https://appeler-tenemos.com/',
-                    companyAddress: 'United kingdome Falmouth',
-                    companyRAndD: '0.33',
-                    industry: 'Professional, scientific and technical activities',
-                    incorporationDate: '11/01/2010',
-                    SIC: '75000 - Veterinary activities',
-                    keywords: 'bovine ,oocytes ,oocyte ,gentamycin ,mediaequine ,maturation ,vitriwarm ,vitricool ,strøbech ,bioscience ,blastocyst ,protocolbovine ,embryos ,embryo ,suitebovine',
-                },
-                {
-                    companyName: 'SELARL LEXAVOUE AIX EN PROVENCE',
-                    companyDescription: `Découvrez la société d'avocats Lexavoué au service de leurs confrères, des institutionnels, des entreprises et des particuliers`,
-                    companySocialMedia: 'twitter',
-                    companyPhone: '+2126012345678',
-                    companyWebsite: 'http://www.lexavoue.com',
-                    companyAddress: 'France AIX-EN-PROVENCE',
-                    companyRAndD: '0.33',
-                    industry: 'Professional, scientific and technical activities',
-                    incorporationDate: '02/01/2012',
-                    SIC: '69.10Z Activités juridiques',
-                    keywords: 'colmar ,plaidant ,postulant ,rejoindre ,amiens ,chambéry ,besançon ,avocats ,grenoble ,avocat ,poitiers ,lexavoue ,alternatifs ,versailles ,contentieux ,limoges',
-                },
-                {
-                    companyName: 'KALLYSTA SARL',
-                    companyDescription: `Kallysta is a technology allowing the charge and the Synchronization of any kind of device. Our SoftwareapiKa Multimedia Lab for iPad KallyLang Language Lab for Mac Dapi Sync. for iPads Kollector Multi-app files sending and recovering Legal Notice Privacy Policy GET SOCIAL © 2007-2020 All rights reserved`,
-                    companySocialMedia: 'twitter',
-                    companyPhone: '+2126012345678',
-                    companyWebsite: 'https://www.kallysta.com/en/',
-                    companyAddress: 'france',
-                    companyRAndD: '0.33',
-                    SIC: '62.01Z Programmation informatique',
-                    industry: 'Information and communication',
-                    incorporationDate: '01/09/2007',
-                    keywords: 'kollector ,teacher ,reseller ,kallysta ,apollo ,kallylang ,tablet ,docking ,tablets',
-                }
-            ],
+            companyID: '',
+            companyName: '',
+            companyDescription: ``,
+            companySocialMedia: '',
+            companyPhone: '',
+            companyWebsite: '',
+            companyAddress: '',
+            companyRAndD: '',
+            innovation_sentances: '',
+            innovation_keywords: '',
+            industry: '',
+            incorporationDate: '',
+            SIC: '',
+            keywords: '',
         };
     },
     mutations: {
         changePopup(state, val) {
             state.showPopup = val;
-        }
+        },
+        change_companyName(state, val) {
+            state.companyName = val;
+        },
+        change_companyDescription(state, val) {
+            state.companyDescription = val;
+        },
+        change_companySocialMedia(state, val) {
+            state.companySocialMedia = val;
+        },
+        change_companyPhone(state, val) {
+            state.companyPhone = val;
+        },
+        change_companyWebsite(state, val) {
+            state.companyWebsite = val;
+        },
+        change_companyAddress(state, val) {
+            state.companyAddress = val;
+        },
+        change_companyRAndD(state, val) {
+            state.companyRAndD = val;
+        },
+        change_innovation_sentances(state, val) {
+            state.innovation_sentances = val;
+        },
+        change_innovation_keywords(state, val) {
+            state.innovation_keywords = val;
+        },
+        change_industry(state, val) {
+            state.industry = val;
+        },
+        change_incorporationDate(state, val) {
+            state.incorporationDate = val;
+        },
+        change_SIC(state, val) {
+            state.SIC = val;
+        },
+        change_keywords(state, val) {
+            state.keywords = val;
+        },
     },
     actions: {
     },

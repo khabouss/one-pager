@@ -7,8 +7,11 @@
     "build": "vue-cli-service build"
   },
   "dependencies": {
+    "@elastic/elasticsearch": "^8.6.0",
     "bulma": "^0.9.4",
     "jspdf": "^2.5.1",
+    "jspdf-autotable": "^3.5.28",
+    "lodash": "^4.17.21",
     "openai": "^3.2.1",
     "vue": "^3.2.13",
     "vuex": "^4.1.0"
