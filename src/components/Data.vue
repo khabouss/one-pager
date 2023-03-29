@@ -22,7 +22,9 @@
                 </div>
             </div>
 
-            <div class="field">
+            <div class="field">using jspdf how can i reduce the size of a text if it goes beyond the pgae
+
+
                 <label class="label">Company list of descriptions (seprate by new line)</label>
                 <div class="control">
                     <textarea class="textarea" v-model="$store.state.companyDescription"></textarea>
@@ -110,7 +112,7 @@ export default {
                 .post("http://localhost:3000/products/getall", { data: this.$store.state.companyID })
                 .then((response) => {
                     let results = response.data.results
-                    console.log(results);
+
                     this.$store.commit('change_companyName', results.official_name)
                     this.$store.commit('change_ws_sm_status', results.ws_sm_status)
                     this.$store.commit('change_companyDescription', results.ws_description)
@@ -128,6 +130,7 @@ export default {
                     this.$store.commit('change_SIC', results.official_industry)
                     this.$store.commit('change_keywords', results.ws_significant_words)
                     this.$store.commit('change_country', results.official_country)
+                    this.$store.commit('change_ws_contact_email', results.ws_contact_email)
                     
                     this.$store.commit('changePopup', true)
                     generate_pdf(this.$store.state.companyDescription)

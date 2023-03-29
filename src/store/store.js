@@ -4,7 +4,7 @@ const store = createStore({
     state() {
         return {
             showPopup: false,
-            companyID: '07976052',
+            companyID: '07121405',
             companyName: '',
             companyDescription: '',
             companySocialMedia: '',
@@ -21,7 +21,8 @@ const store = createStore({
             SIC: '',
             keywords: '',
             country: '',
-            ws_sm_status: 0
+            ws_sm_status: 0,
+            ws_contact_email: ''
         };
     },
     mutations: {
@@ -30,6 +31,9 @@ const store = createStore({
         },
         change_country(state, val) {
             state.country = val;
+        },
+        change_ws_contact_email(state, val) {
+            state.ws_contact_email = val;
         },
         change_ws_sm_status(state, val) {
             state.ws_sm_status = val;
@@ -50,7 +54,7 @@ const store = createStore({
             state.companySocialMedia = val;
         },
         change_companyPhone(state, val) {
-            state.companyPhone = val;
+            state.companyPhone = val[0];
         },
         change_companyWebsite(state, val) {
             state.companyWebsite = val;
