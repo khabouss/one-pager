@@ -16,21 +16,32 @@ function renderPDF(profile, innovation, top_players, market) {
 
     let maxWidth = "170";
 
-    if (store.state.ws_sm_status !== 0) {
-        let social_media = store.state.social_media
-    }
     if (typeof store.state.industry === "object") {
         addBadge(doc, findImgPath(store.state.industry[0]))
     }
     else if (typeof store.state.industry === "string") {
         addBadge(doc, findImgPath(store.state.industry))
     }
-
+    
     console.log(store.state.industry[0]);
-
+    
     doc.setFont("helvetica", "bold");
     doc.setFillColor("#2E4053")
     doc.rect(0, 5, 210, 15, "F")
+    
+    if (store.state.ws_sm_status !== 0) {
+        let social_media = store.state.companySocialMedia
+        let next = 0
+        let size = 3;
+        let init_x = 180
+        let init_y = 11
+        for (const key in social_media) {
+            const image = require('@/assets/socialMedia/'+key+'.png');
+            doc.addImage(image, 'SVG', init_x + next, init_y, size, size)
+            doc.link(init_x + next, init_y, size, size, { url: social_media[key][0] });
+            next += 6;
+        }
+    }
 
     doc.setTextColor("#fff")
     doc.text(store.state.companyName, 10, 15, { renderingMode: "fill" })
