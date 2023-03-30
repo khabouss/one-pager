@@ -61,12 +61,12 @@ function renderPDF(profile, innovation, top_players, market) {
     // ** Table **
     doc.text("Top companies doing R&D in this fiels:", 15, 222)
     if (market !== "") {
-        table(doc, 15, 225, 32, market)
+        table(doc, 15, 225, 35, market)
     }
     // ------------
 
     // ** Graph **
-    doc.text(`Evolution of R&D in ${store.state.country}`, 125, 222)
+    doc.text(`Evolution of R&D in ${store.state.country}`, 130, 222)
     graph(doc, 135, 267, 40)
 
     let footer_height = 15
@@ -229,7 +229,8 @@ function rndComponenet(doc, x, y) {
     doc.text(store.state.companyRAndD, x + 10, y + 20)
     doc.setFontSize(8)
     doc.text("R&D Score:", x + 5, y + 10)
-    doc.text(rnd_sub_title, x + 10, y + 20 + 4)
+    doc.setFontSize(7)
+    doc.text("*"+rnd_sub_title, x + 10 + 10, y + 20 + 7)
     doc.setFillColor('#FFFFFF');
     // doc.circle(x+35, y+5, 3, "F");
     // const rnd_image = require('@/assets/rnd/' + rnd_image_path)
