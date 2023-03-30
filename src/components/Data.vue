@@ -117,7 +117,7 @@ export default {
                     this.$store.commit('change_ws_sm_status', results.ws_sm_status)
                     this.$store.commit('change_companyDescription', results.ws_description)
                     this.$store.commit('change_companySocialMedia', results.ws_sm)
-                    this.$store.commit('change_companyPhone', results.ws_contact_phone)
+                    this.$store.commit('change_companyPhone', results.ws_contact_phone === null ? "Not Available" : results.ws_contact_phone)
                     this.$store.commit('change_companyWebsite', results.ws_url)
                     this.$store.commit('change_companyAddress', results.official_country + ", " + results.address_city)
                     this.$store.commit('change_companyRAndD', results.is_rd_score + "%")
@@ -130,6 +130,7 @@ export default {
                     this.$store.commit('change_SIC', results.official_industry)
                     this.$store.commit('change_keywords', results.ws_significant_words)
                     this.$store.commit('change_country', results.official_country)
+                    console.log(results.official_country);
                     this.$store.commit('change_ws_contact_email', results.ws_contact_email)
                     
                     this.$store.commit('changePopup', true)

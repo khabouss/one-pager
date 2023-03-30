@@ -2,6 +2,7 @@ import { Configuration, OpenAIApi } from "openai"
 import jsPDF from 'jspdf'
 import store from '../store/store.js';
 import 'jspdf-autotable'
+import '/home/taha/Desktop/one-pager/src/assets/arial-unicode-ms-normal.js';
 
 const configuration = new Configuration({
     apiKey: process.env.VUE_APP_API_KEY,
@@ -9,25 +10,132 @@ const configuration = new Configuration({
 
 const openai = new OpenAIApi(configuration);
 
+/*
+    Main function that renders the PDF
+*/
 function renderPDF(profile, innovation, top_players, market) {
+
     store.commit('changePopup', false)
 
     const doc = new jsPDF()
-    console.log("width: ", doc.internal.pageSize.getWidth());
+
     let maxWidth = "170";
 
+    headSection(doc)
+
+
+    profileSection(doc, profile, maxWidth)
+    innovationSection(doc, innovation, maxWidth)
+
+
+
+
+    // ** R&D **
+    rndComponenet(doc, 83, 178)
+    // -------------------------------------------------
+
+
+    // ** Top Players **
+    // let top_players_digest = [top_players, "\n\n"]
+    // doc.setTextColor("#2E4053")
+    // doc.text("Top Players in the same sector:", 15, 245)
+    // doc.setFontSize(7);
+    // doc.text(top_players_digest, 145, 250, { maxWidth: "50" })
+    // doc.setFontSize(10);
+    // ----------------------------
+
+
+    // ** Donuts **
+    let red_donut_x = 30;
+    let red_donut_y = 195;
+    donut(doc, red_donut_x, red_donut_y, 15, 7, store.state.sentences_count, store.state.high_scoring_sentences_count
+        , "Sentences with score greater than 95%", "Total number of Sentences", '#FF6384', '#36A2EB')
+
+    let yellow_donut_x = 155;
+    let yellow_donut_y = 195;
+    doc.setTextColor("000")
+    donut(doc, yellow_donut_x, yellow_donut_y, 15, 7, store.state.innovation_keywords.length, get_special_keywords_length()
+        , "keywords with score greater than 100", "Total number of keywords", '#F7DC6F', '#2E4053')
+    // ----------------------------------
+
+    // ** Table **
+    doc.text("Top companies doing R&D in this fiels:", 15, 222)
+    if (market !== "") {
+        table(doc, 15, 225, 32, market)
+    }
+    // ------------
+
+    // ** Graph **
+    doc.text(`Evolution of R&D in ${store.state.country}`, 125, 222)
+    graph(doc, 135, 267, 40)
+
+    let footer_height = 15
+    // ** Footer **
+    doc.setFillColor("#283747")
+    doc.rect(0, doc.internal.pageSize.getHeight() - footer_height, doc.internal.pageSize.getWidth(), footer_height, "F")
+    let footer_text = `Company Number: ${store.state.companyID}  Phone: ${store.state.companyPhone}  Address: ${store.state.companyAddress}  Email: ${store.state.ws_contact_email}`
+    doc.setTextColor("#fff")
+    doc.setFontSize(7)
+    doc.text(footer_text, (doc.internal.pageSize.getWidth() / 2) - (doc.getTextWidth(footer_text) / 2), doc.internal.pageSize.getHeight() - (footer_height / 2))
+    // ---------------------------------
+
+
+    doc.save('my_data.pdf')
+}
+
+function graph(doc, x, y, width) {
+    doc.setFillColor("#000")
+    doc.setDrawColor("#1A5276")
+    // Define some sample data
+    var data = [10, 25, 30, 12, 20, 25, 30, 12, 20];
+
+    let lines_len = width
+
+    // Set the graph's x and y axes
+    var x_axis = x;
+    var y_axis = y;
+
+    // Calculate the scale of the graph based on the maximum value
+    var scale = 40 / width;
+
+    // Draw the x and y axes
+    doc.line(x_axis, y_axis, x_axis, y_axis - lines_len);
+    doc.line(x_axis, y_axis, x_axis + lines_len, y_axis);
+
+
+    // Draw the lines connecting the data points
+    for (var i = 0; i < data.length - 1; i++) {
+        var x1 = x_axis + (i * scale);
+        var y1 = y_axis - (data[i] * scale);
+        var x2 = x_axis + ((i + 1) * scale);
+        var y2 = y_axis - (data[i + 1] * scale);
+        doc.line(x1, y1, x2, y2);
+    }
+
+    // Draw the data points
+    for (var i = 0; i < data.length; i++) {
+        var x = x_axis + (i * scale);
+        var y = y_axis - (data[i] * scale);
+        doc.circle(x, y, 1, 'F');
+    }
+}
+
+function fitSize(doc, text, size, maxWidth) {
+    var fontSize = size
+    while (doc.getTextWidth(text) > maxWidth) {
+        console.log("m: ", doc.getTextWidth(text));
+        fontSize--;
+        doc.setFontSize(fontSize);
+    }
+}
+
+function headSection(doc) {
     if (typeof store.state.industry === "object") {
         addBadge(doc, findImgPath(store.state.industry[0]))
     }
     else if (typeof store.state.industry === "string") {
         addBadge(doc, findImgPath(store.state.industry))
     }
-
-    console.log(store.state.industry[0]);
-
-    doc.setFont("helvetica", "bold");
-    doc.setFillColor("#1C2833")
-    doc.rect(0, 2, 210, 15, "F")
 
     if (store.state.ws_sm_status !== 0) {
         let social_media = store.state.companySocialMedia
@@ -43,15 +151,20 @@ function renderPDF(profile, innovation, top_players, market) {
         }
     }
 
+    doc.setFillColor("#1C2833")
+    doc.rect(0, 2, 210, 15, "F")
     doc.setTextColor("#fff")
-    doc.text(store.state.companyName, 10, 10, { renderingMode: "fill" })
+    fitSize(doc, store.state.companyName, 10, 90)
+    doc.setFont("arial-unicode-ms");
+    doc.text(store.state.companyName, 10, 9, { renderingMode: "fill" })
     doc.setFontSize(7)
-    doc.text("(" + store.state.industry + ")", 10, 14, { renderingMode: "fill" })
+    doc.text("(" + store.state.industry + ")", 10, 12, { renderingMode: "fill" })
+    const country_image = require('@/assets/country/' + store.state.country + ".png")
+    doc.addImage(country_image, 'PNG', 4, 7, 4, 4)
+}
 
+function profileSection(doc, profile, maxWidth) {
     let profile_digest = [profile, "\n\n"]
-    let top_players_digest = [top_players, "\n\n"]
-    let innovation_digest = [innovation, "\n\n"]
-
     doc.setFillColor("#2C3E50")
     doc.roundedRect(5, 40, 200, 50, 5, 5, "F")
     doc.setTextColor("#fff")
@@ -62,30 +175,27 @@ function renderPDF(profile, innovation, top_players, market) {
     doc.text(profile_digest, 20, 55, { maxWidth: maxWidth })
     doc.setFontSize(10)
     doc.setFont("helvetica", "bold");
+}
 
+function innovationSection(doc, innovation, maxWidth) {
+    let innovation_digest = [innovation, "\n\n"]
     doc.setFillColor("#F7DC6F")
     doc.setTextColor("#000")
-    // doc.rect(5, 140, 200, 20, "F")
     doc.text("Innovation:", 15, 100)
     doc.setFontSize(9)
     doc.setFont("times", "normal");
     doc.text(innovation_digest, 20, 105, { maxWidth: maxWidth })
+    console.log(doc.getTextDimensions(innovation_digest));
     doc.setFontSize(10)
     doc.setFont("helvetica", "bold");
+}
 
-    let footer_height = 15
-
-    doc.text("Industry statistics:", 15, 205 - footer_height)
-    if (market !== "") {
-        table(doc, 15, 210 - footer_height, market)
-    }
-
-    doc.text("R&D Score:", 155, 205 - footer_height)
+function rndComponenet(doc, x, y) {
     doc.setTextColor("#fff")
     doc.setFontSize(25);
     doc.setFont("times", "bold");
     let rnd = parseFloat(store.state.companyRAndD.slice(0, -1))
-    // add unknowen
+    /// add unknowen
     let color = "#000";
     let rnd_image_path = "rndu.png"
     let rnd_sub_title = "not scored yet"
@@ -115,40 +225,18 @@ function renderPDF(profile, innovation, top_players, market) {
         rnd_sub_title = "R&D very likely"
     }
     doc.setFillColor(color)
-    doc.roundedRect(145, 212 - footer_height, 45, 25, 5, 5, "F")
-    doc.text(store.state.companyRAndD, 155, 227 - footer_height)
+    doc.roundedRect(x, y + 5, 45, 25, 5, 5, "F")
+    doc.text(store.state.companyRAndD, x + 10, y + 20)
     doc.setFontSize(8)
-    doc.text(rnd_sub_title, 155, 230 - footer_height)
-    const rnd_image = require('@/assets/rnd/' + rnd_image_path)
+    doc.text("R&D Score:", x + 5, y + 10)
+    doc.text(rnd_sub_title, x + 10, y + 20 + 4)
     doc.setFillColor('#FFFFFF');
-    doc.circle(185, 212 - footer_height + 4, 3, "F");
-    doc.addImage(rnd_image, 'PNG', 183, 212 - footer_height + 2, 4, 4)
+    // doc.circle(x+35, y+5, 3, "F");
+    // const rnd_image = require('@/assets/rnd/' + rnd_image_path)
+    // doc.addImage(rnd_image, 'PNG', x+25, y+5, 4, 4)
     doc.setTextColor("#000")
     doc.setFontSize(10);
     doc.setFont("helvetica", "bold");
-
-    doc.setTextColor("#2E4053")
-    doc.text("Top Players in the same sector:", 15, 260 - footer_height)
-    doc.setFontSize(7);
-    doc.text(top_players_digest, 20, 265 - footer_height, { maxWidth: "50" })
-    doc.setFontSize(10);
-    // drawChart(doc)
-    donut(doc, 90, 270 - footer_height, 15, 7, store.state.sentences_count, store.state.high_scoring_sentences_count
-        , "Sentences with score greater than 95%", "Total number of Sentences", '#FF6384', '#36A2EB')
-
-    donut(doc, 155, 270 - footer_height, 15, 7, store.state.innovation_keywords.length, get_special_keywords_length()
-        , "keywords with score greater than 100", "Total number of keywords", '#F7DC6F', '#2E4053')
-
-    doc.setFillColor("#283747")
-    doc.rect(0, doc.internal.pageSize.getHeight() - footer_height, doc.internal.pageSize.getWidth(), footer_height, "F")
-    let footer_text = `ID: ${store.state.companyID}\tPhone: ${store.state.companyPhone}\nAddress: ${store.state.companyAddress}\nEmail: ${store.state.ws_contact_email}`
-    doc.setTextColor("#fff")
-    doc.setFontSize(7)
-
-    doc.text(footer_text, doc.internal.pageSize.getWidth() / 2, doc.internal.pageSize.getHeight() - footer_height + 5
-        , { align: 'center' })
-
-    doc.save('my_data.pdf')
 }
 
 function findImgPath(industry) {
@@ -207,16 +295,15 @@ function get_special_keywords_length() {
     return keywords.filter(item => item.size > 100).length;
 }
 5
-function table(doc, x, y, market) {
+function table(doc, x, y, cellWidth, market) {
     const data = market.split("\n").map(row => row.split("|"));
 
     doc.autoTable({
-        styles: { fontSize: 7, cellWidth: 30 },
+        styles: { fontSize: 7, cellWidth: cellWidth },
         head: [data[0]],
         body: data.slice(1, 4),
         startY: y,
         startX: x,
-        columnWidths: [20, 20, 20, 20]
     });
 }
 
@@ -255,8 +342,6 @@ function drawChart(doc) {
         doc.text(data2[i], barX, barY + barHeightActual + 5)
     }
 
-    // Save the PDF document
-
 
 }
 
@@ -275,6 +360,11 @@ function donut(doc, centerX, centerY, radius1, radius2, total_sentences, special
     doc.text(T1, centerX + radius1 + 8, centerY - 5, { maxWidth: "20" })
     doc.text(T2, centerX + radius1 + 8, centerY + 5, { maxWidth: "20" })
     doc.setFontSize(10)
+
+    doc.setTextColor(colors[1])
+    let persent = (special_sentences / total_sentences) * 100;
+    let persent_text = "" + Math.round(persent) + "%";
+    doc.text(persent_text, centerX - (doc.getTextWidth(persent_text) / 2), centerY + 1)
 
     // Draw the slices of the donut chart
     let startAngle = 0;
@@ -368,23 +458,23 @@ export default async function generate() {
 
     // let message = [{ role: 'system', content: 'You are a helpful assistant.' }]
 
-    // if (store.state.companyName !== '' && store.state.companyAddress !== '' && store.state.companyAddress !== '' && store.state.incorporationDate !== '') {
-    //     let profile_prompt = `quickly write an honest description in english from the following data that has been scraped from a company website: company_name="${store.state.companyName}" company_address="${store.state.companyAddress}" company_incorporation_date="${store.state.incorporationDate}" (dont say "Sorry, as an AI language model .." just get to the point)`
-    //     const profile_messages = [{ role: 'user', content: profile_prompt }]
-    //     profile = await get_gpt_response(profile_messages)
-    // }
+    if (store.state.companyName !== '' && store.state.companyAddress !== '' && store.state.companyAddress !== '' && store.state.incorporationDate !== '') {
+        let profile_prompt = `quickly write an honest description in english from the following data that has been scraped from a company website: company_name="${store.state.companyName}" company_address="${store.state.companyAddress}" company_incorporation_date="${store.state.incorporationDate}" (dont say "Sorry, as an AI language model .." just get to the point)`
+        const profile_messages = [{ role: 'user', content: profile_prompt }]
+        profile = await get_gpt_response(profile_messages)
+    }
 
-    // if (store.state.keywords !== '' && store.state.SIC !== '') {
-    //     let activity_prompt = `using the following company keywors: "${store.state.keywords}" and the following company SIC: "${store.state.SIC}" give a quickly short description of the company activity without using uncertainty words (ex: likely, may ..) (dont say "Sorry, as an AI language model .." just get to the point) (dont start with "Based on the keywords, sentences, description, and activity scraped from the company website")`
-    //     const activity_messages = [{ role: 'user', content: activity_prompt }]
-    //     activity = await get_gpt_response(activity_messages)
-    // }
+    if (store.state.keywords !== '' && store.state.SIC !== '') {
+        let activity_prompt = `using the following company keywors: "${store.state.keywords}" and the following company SIC: "${store.state.SIC}" give a quickly short description of the company activity without using uncertainty words (ex: likely, may ..) (dont say "Sorry, as an AI language model .." just get to the point) (dont start with "Based on the keywords, sentences, description, and activity scraped from the company website")`
+        const activity_messages = [{ role: 'user', content: activity_prompt }]
+        activity = await get_gpt_response(activity_messages)
+    }
 
-    // if (store.state.innovation_sentances !== '' && formated_keywords() !== '' && profile !== '' && activity !== '' && store.state.companyRAndD !== '') {
-    //     let innovation_prompt = `from the following keywods, sentences, description and activity that were scraped from a company website: keyword="${formated_keywords()}" sentences="${store.state.innovation_sentances}" description="${profile} activity="${activity}" we think that the probability of this company being R&D innovative is ${store.state.companyRAndD}.now explain (without using uncertainty words ex: likely, may ..) in a well formated multiparagraph (spcae between paragraphs) that does not exceed 152 words, why the company is ${store.state.companyRAndD} r&d innovative? (dont start the text with "Based on the information scraped..")`
-    //     const innovation_messages = [{ role: 'user', content: innovation_prompt }]
-    //     innovation = await get_gpt_response(innovation_messages)
-    // }
+    if (store.state.innovation_sentances !== '' && formated_keywords() !== '' && profile !== '' && activity !== '' && store.state.companyRAndD !== '') {
+        let innovation_prompt = `from the following keywods, sentences, description and activity that were scraped from a company website: keyword="${formated_keywords()}" sentences="${store.state.innovation_sentances}" description="${profile} activity="${activity}" we think that the probability of this company being R&D innovative is ${store.state.companyRAndD}.now explain (without using uncertainty words ex: likely, may ..) in a well formated multiparagraph (spcae between paragraphs) that does not exceed 152 words, why the company is ${store.state.companyRAndD} r&d innovative? (dont start the text with "Based on the information scraped..")`
+        const innovation_messages = [{ role: 'user', content: innovation_prompt }]
+        innovation = await get_gpt_response(innovation_messages)
+    }
 
     // if (store.state.industry !== "" && store.state.country) {
     //     let top_players_prompt = `give me the names of top five companies in the sector of "${store.state.industry}" in 2018 in ${store.state.country} (with their revenue)`
@@ -398,17 +488,18 @@ export default async function generate() {
     // }
 
     // // check if actually four
-    // if (store.state.industry !== "" && store.state.country !== "") {
-    //     let market_prompt = `in csv format (use | as delimiter) give me any four key statistics regarding "${store.state.industry}" in ${store.state.country} in any year you have available (write the answer in csv format) also provide only three rows or less`
-    //     const market_messages = [{ role: 'user', content: market_prompt }]
-    //     market = await get_gpt_response(market_messages)
-    //     // market = market.substring(0, market.indexOf("\n\n", 0))
-    //     console.log(market.indexOf("\n\n", 0));
-    //     console.log(market);
-    //     let lines = market.split("\n");
-    //     lines.splice(1, 1);
-    //     market = lines.join("\n");
-    // }
+    if (profile !== "" && activity !== "" && store.state.country !== "") {
+        // let market_prompt = `in csv format (use | as delimiter) give me any four key statistics regarding "${store.state.industry}" in ${store.state.country} in any year you have available (write the answer in csv format) also provide only three rows or less`
+        let market_prompt = `give me top three companies (just name, revenue, r&d product (just the nmae)) in ${store.state.country} doing the same activity as the company with the following description "${profile + "\n" + activity}" order your prompt as csv text delimted by | with a header`
+        const market_messages = [{ role: 'user', content: market_prompt }]
+        market = await get_gpt_response(market_messages)
+        // market = market.substring(0, market.indexOf("\n\n", 0))
+        console.log(market.indexOf("\n\n", 0));
+        console.log(market);
+        let lines = market.split("\n");
+        lines.splice(1, 1);
+        market = lines.join("\n");
+    }
 
     renderPDF("\n- " + profile + "\n\n- " + activity, innovation, top_players, market)
 
