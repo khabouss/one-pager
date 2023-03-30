@@ -2,7 +2,7 @@ import { Configuration, OpenAIApi } from "openai"
 import jsPDF from 'jspdf'
 import store from '../store/store.js';
 import 'jspdf-autotable'
-import '/home/taha/Desktop/one-pager/src/assets/arial-unicode-ms-normal.js';
+// import '/home/taha/Desktop/one-pager/src/assets/arial-unicode-ms-normal.js';
 
 const configuration = new Configuration({
     apiKey: process.env.VUE_APP_API_KEY,
@@ -155,7 +155,7 @@ function headSection(doc) {
     doc.rect(0, 2, 210, 15, "F")
     doc.setTextColor("#fff")
     fitSize(doc, store.state.companyName, 10, 90)
-    doc.setFont("arial-unicode-ms");
+    // doc.setFont("arial-unicode-ms");
     doc.text(store.state.companyName, 10, 9, { renderingMode: "fill" })
     doc.setFontSize(7)
     doc.text("(" + store.state.industry + ")", 10, 12, { renderingMode: "fill" })
