@@ -13,7 +13,7 @@ const openai = new OpenAIApi(configuration);
 /*
     Main function that renders the PDF
 */
-function renderPDF(profile, innovation, top_players, market) {
+function renderPDF(profile, innovation, top_players, market, graph_data) {
 
     store.commit('changePopup', false)
 
@@ -67,7 +67,7 @@ function renderPDF(profile, innovation, top_players, market) {
 
     // ** Graph **
     doc.text(`Evolution of R&D in ${store.state.country}`, 130, 222)
-    graph(doc, 135, 267, 40)
+    graph(doc, 135, 267, 40, graph_data)
 
     let footer_height = 15
     // ** Footer **
@@ -83,7 +83,7 @@ function renderPDF(profile, innovation, top_players, market) {
     doc.save('my_data.pdf')
 }
 
-function graph(doc, x, y, width) {
+function graph(doc, x, y, width, graph_data) {
     doc.setFillColor("#000")
     doc.setDrawColor("#1A5276")
     // Define some sample data
@@ -456,6 +456,7 @@ export default async function generate() {
     let innovation = ""
     let top_players = ""
     let market = ""
+    let graph_data = ""
 
     // let message = [{ role: 'system', content: 'You are a helpful assistant.' }]
 
@@ -471,27 +472,16 @@ export default async function generate() {
         activity = await get_gpt_response(activity_messages)
     }
 
-    if (store.state.innovation_sentances !== '' && formated_keywords() !== '' && profile !== '' && activity !== '' && store.state.companyRAndD !== '') {
-        let innovation_prompt = `from the following keywods, sentences, description and activity that were scraped from a company website: keyword="${formated_keywords()}" sentences="${store.state.innovation_sentances}" description="${profile} activity="${activity}" we think that the probability of this company being R&D innovative is ${store.state.companyRAndD}.now explain (without using uncertainty words ex: likely, may ..) in a well formated multiparagraph (spcae between paragraphs) that does not exceed 152 words, why the company is ${store.state.companyRAndD} r&d innovative? (dont start the text with "Based on the information scraped..")`
-        const innovation_messages = [{ role: 'user', content: innovation_prompt }]
-        innovation = await get_gpt_response(innovation_messages)
-    }
-
-    // if (store.state.industry !== "" && store.state.country) {
-    //     let top_players_prompt = `give me the names of top five companies in the sector of "${store.state.industry}" in 2018 in ${store.state.country} (with their revenue)`
-    //     const top_players_messages = [{ role: 'user', content: top_players_prompt }]
-    //     top_players = await get_gpt_response(top_players_messages)
-    //     if (top_players.indexOf("\n", top_players.indexOf("5.", 0)) !== -1)
-    //         top_players = top_players.substring(top_players.indexOf("1.", 0), top_players.indexOf("\n", top_players.indexOf("5.", 0)))
-    //     else
-    //         top_players = top_players.substring(top_players.indexOf("1.", 0), top_players.length)
-
+    // if (store.state.innovation_sentances !== '' && formated_keywords() !== '' && profile !== '' && activity !== '' && store.state.companyRAndD !== '') {
+    //     let innovation_prompt = `from the following keywods, sentences, description and activity that were scraped from a company website: keyword="${formated_keywords()}" sentences="${store.state.innovation_sentances}" description="${profile} activity="${activity}" we think that the probability of this company being R&D innovative is ${store.state.companyRAndD}.now explain (without using uncertainty words ex: likely, may ..) in a well formated multiparagraph (spcae between paragraphs) that does not exceed 152 words, why the company is ${store.state.companyRAndD} r&d innovative? (dont start the text with "Based on the information scraped..")`
+    //     const innovation_messages = [{ role: 'user', content: innovation_prompt }]
+    //     innovation = await get_gpt_response(innovation_messages)
     // }
 
-    // // check if actually four
+    // // // check if actually four
     if (profile !== "" && activity !== "" && store.state.country !== "") {
         // let market_prompt = `in csv format (use | as delimiter) give me any four key statistics regarding "${store.state.industry}" in ${store.state.country} in any year you have available (write the answer in csv format) also provide only three rows or less`
-        let market_prompt = `give me top three companies (just name, revenue, r&d product (just the nmae)) in ${store.state.country} doing the same activity as the company with the following description "${profile + "\n" + activity}" order your prompt as csv text delimted by | with a header`
+        let market_prompt = `in csv format (use | as delimiter) give me top three companies (just name, revenue, r&d product (just the nmae)) in ${store.state.country} doing the same activity as the company with the following description "${profile + "\n" + activity}", please order your prompt as csv text delimted by "|" and "-" with a header`
         const market_messages = [{ role: 'user', content: market_prompt }]
         market = await get_gpt_response(market_messages)
         // market = market.substring(0, market.indexOf("\n\n", 0))
@@ -502,7 +492,19 @@ export default async function generate() {
         market = lines.join("\n");
     }
 
-    renderPDF("\n- " + profile + "\n\n- " + activity, innovation, top_players, market)
+    if (profile !== "" && activity !== "" && store.state.country !== "") {
+        // interesing => let graph_prompt = `in csv format (use | as delimiter) give me one statistic key evolving with time (like market size, turnover ..) (also doesn't have to be real-time statistics data) in the same field as these companies: "${market}" in ${store.state.country}`
+        let graph_prompt = `in csv format (use | as delimiter) give me the year and market size (just the year and market size in USD) evolving with time (doesn't have to be real-time statistics data) in the same field as these companies: "${market}" in ${store.state.country} don't include N/A values`
+        const graph_messages = [{ role: 'user', content: graph_prompt }]
+        let graph = await get_gpt_response(graph_messages)
+        console.log(graph);
+        let graph_data_prompt = `extract from the following text a double js array ${graph}, the first array containing the years as a string, the second array containing the market size as a number, the third array containing just two elements which is 'the currency of the market size' and 'the unit', ex: "[['2010', '2011', '2012'], [3.4, 2, 10], ['USD', 'billion']]"` 
+        const graph_data_messages = [{ role: 'user', content: graph_data_prompt }]
+        graph_data = await get_gpt_response(graph_data_messages)
+        console.log(graph_data);
+    }
+
+    renderPDF("\n- " + profile + "\n\n- " + activity, innovation, top_players, market, graph_data)
 
 
 
